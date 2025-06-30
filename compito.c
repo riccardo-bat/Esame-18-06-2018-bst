@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "tipo_inf.h"
 #include "carta.h"
 #include "bst.h"
@@ -11,6 +12,8 @@ void string_input(char* msg, char* dest);
 void richiediCarta(bst* bst_carte);
 long int totalePunti(bst t, int inf, int sup); 
 void scambia(tipo_key *a, tipo_key *b);
+void aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati);
+bool rec_aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati);
 
 int main(){
     //punto 1
@@ -22,11 +25,34 @@ int main(){
         richiediCarta(&bst_carte);
     }
 
-    //punto 2. 
+    //punto 2
     //stampo tutte le carte fedeltà in ordine crescente delle chiavi 
     stampa_bst_inorder(bst_carte);
 
+
+    //punto 3
+    printf("\n------------------------------------------------");
+    char buffer[MAX_LENGTH_NAMESURNAME]; 
+
+    do{
+        string_input("\nSi vogliono eseguire degli acquisti? (inserire Q/q per non aggiungere acquisti): ", buffer);
+        
+        if(buffer[0] != 'Q' && buffer[0] != 'q'){
+            //inserisco un acquisto
+            tipo_key chiave = int_input("\n\t-Chiave acquisto: ", 1000);
+            long int puntiAccumulati = int_input("\t-Punti accumulati: ", 0);
+
+            aggiorna(bst_carte, chiave, puntiAccumulati);
+            printf("\n");
+            stampa_bst_inorder(bst_carte);
+            printf("\n");
+        }
+
+    } while(buffer[0] != 'Q' && buffer[0] != 'q');
+
+
     //punto 2.b
+    printf("\n------------------------------------------------");
     tipo_key inf = int_input("\n\n\nEstremo inferiore: ", 1000);
     tipo_key sup = int_input("\nEstremo superiore: ", 1000);
 
@@ -147,4 +173,31 @@ void scambia(tipo_key* a, tipo_key *b){
     tipo_key temp = *a; 
     *a = *b; 
     *b = temp;
+}
+
+void aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati){
+    bool esito = rec_aggiorna(t, numeroCarta, puntiAccumulati);
+    //segnalo errore se la carta non esiste
+    if(!esito){
+        printf("\nErrore: la carta %d non esiste", numeroCarta);
+    }
+}
+
+bool rec_aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati){
+    //scorro il bst 
+    //caso base --> albero vuoto
+    if(t == NULL) return false; 
+
+    //se il nodo corrente corrisponde al numero della carta, effettuo gli aggiornamenti
+    if(t->key == numeroCarta){
+        t->inf.totPunti += puntiAccumulati; 
+        return true; //ho effettuato l'aggiornamento
+    }
+
+    //in base al valore della chiave mi sposto a sx o a dx (E' UN BST)
+    if(numeroCarta < t->key) //se sto cercando un numero < t->key, mi devo spostare alla sua sx
+        return rec_aggiorna(t->left, numeroCarta, puntiAccumulati);
+    else 
+        return rec_aggiorna(t->right, numeroCarta, puntiAccumulati);
+
 }
