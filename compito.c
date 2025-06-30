@@ -9,8 +9,11 @@
 long int int_input(char* msg, int minimum_value);
 void string_input(char* msg, char* dest);
 void richiediCarta(bst* bst_carte);
+long int totalePunti(bst t, int inf, int sup); 
+void scambia(tipo_key *a, tipo_key *b);
 
 int main(){
+    //punto 1
     long int num_carte = int_input("\nNumero delle carte da inserire: ", 1);
     bst bst_carte = NULL;
 
@@ -19,8 +22,20 @@ int main(){
         richiediCarta(&bst_carte);
     }
 
+    //punto 2. 
     //stampo tutte le carte fedeltà in ordine crescente delle chiavi 
     stampa_bst_inorder(bst_carte);
+
+    //punto 2.b
+    tipo_key inf = int_input("\n\n\nEstremo inferiore: ", 1000);
+    tipo_key sup = int_input("\nEstremo superiore: ", 1000);
+
+    if(inf > sup){
+        printf("\nValori dei due estremi scambiati\n");
+        scambia(&inf, &sup);
+    }
+
+    printf("\nIl numero totale di punti delle carte comprese tra %d e %d = %li", inf, sup, totalePunti(bst_carte, inf, sup));
 
 
 
@@ -96,7 +111,7 @@ void richiediCarta(bst* bst_carte){
         string_input("\t- Cognome del cliente: ", surname);
     }
     
-    printf("Name inserito = %s, cognome = %s", name, surname);
+    //printf("Name inserito = %s, cognome = %s", name, surname);
 
     strcpy(node_to_insert.nomeCognome, strcat(name, " "));
     strcpy(node_to_insert.nomeCognome, strcat(node_to_insert.nomeCognome, surname)); 
@@ -107,4 +122,29 @@ void richiediCarta(bst* bst_carte){
     //printf("\nNome e cognome: %s", node_to_insert.nomeCognome);
 
     bst_insert(bst_carte, bst_newNode(key, node_to_insert));
+}
+
+/**
+ * @brief restituisce la somma dei punti delle carte | inf <= key-carta <= sup
+ * 
+ * @param t 
+ * @param inf 
+ * @param sup 
+ * @return long int 
+ */
+long int totalePunti(bst t, int inf, int sup){
+    //scorro tutto l'albero tramite una inorder, in modo da evitare di visulizzare parti di albero in cui so che non ci sono più carte comprese tra inf e sup
+    //caso base --> albero vuoto
+    if(t == NULL) return 0; 
+
+    //caso ricorsivo
+    if(inf <= t->key && t->key <= sup)
+        return t->inf.totPunti + totalePunti(t->left, inf, sup) + totalePunti(t->right, inf, sup);
+    return totalePunti(t->left, inf, sup) + totalePunti(t->right, inf, sup);
+}
+
+void scambia(tipo_key* a, tipo_key *b){
+    tipo_key temp = *a; 
+    *a = *b; 
+    *b = temp;
 }
