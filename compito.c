@@ -9,20 +9,26 @@
 //prototipi
 long int int_input(char* msg, int minimum_value);
 void string_input(char* msg, char* dest);
-void richiediCarta(bst* bst_carte);
+tipo_key richiediCarta(bst* bst_carte);
 long int totalePunti(bst t, int inf, int sup); 
 void scambia(tipo_key *a, tipo_key *b);
 void aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati);
 bool rec_aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati);
+void delete_key(tipo_key* array, size_t dim, tipo_key chiave);
 
 int main(){
     //punto 1
     long int num_carte = int_input("\nNumero delle carte da inserire: ", 1);
     bst bst_carte = NULL;
+    tipo_key* array_carte_senzaAcquisti = NULL; //array che tiene traccia delle carte che in giornata non hanno fatto acquisti
+    int dim_array_carte_senzaAcquisti = 0;
 
     for(int i=0; i<num_carte; i++){
         printf("\nCARTA [%d]\n", i+1);
-        richiediCarta(&bst_carte);
+        dim_array_carte_senzaAcquisti++;
+        //per ogni carta inserita la aggiungo nelle carte che ancora non hanno acquistato
+        array_carte_senzaAcquisti = realloc(array_carte_senzaAcquisti, dim_array_carte_senzaAcquisti);
+        array_carte_senzaAcquisti[dim_array_carte_senzaAcquisti-1] = richiediCarta(&bst_carte);
     }
 
     //punto 2
@@ -46,6 +52,9 @@ int main(){
             printf("\n");
             stampa_bst_inorder(bst_carte);
             printf("\n");
+
+            //elimino quella chiave che ha appena effettuato l'acquisto
+            delete_key(array_carte_senzaAcquisti, dim_array_carte_senzaAcquisti, chiave);
         }
 
     } while(buffer[0] != 'Q' && buffer[0] != 'q');
@@ -62,6 +71,15 @@ int main(){
     }
 
     printf("\nIl numero totale di punti delle carte comprese tra %d e %d = %li", inf, sup, totalePunti(bst_carte, inf, sup));
+
+
+    //punto 4
+    //stampo tutte le carte che in giornata non hanno effettuato acquisti
+    printf("\n\nElenco delle carte che non hanno effettuato acquisti oggi: ");
+    for(int i=0; i<dim_array_carte_senzaAcquisti; i++){
+        if(array_carte_senzaAcquisti[i] != 0)
+            printf("\n\t-Carta %d", array_carte_senzaAcquisti[i]);
+    }
 
 
 
@@ -116,9 +134,10 @@ void string_input(char* msg, char* dest){
  * @brief richiesta dei dati di una singola carta 
  * 
  * @param bst_carte 
+ * @return chiave appena inserita
  */
 
-void richiediCarta(bst* bst_carte){
+tipo_key richiediCarta(bst* bst_carte){
     tipo_inf node_to_insert;
     char name[MAX_LENGTH_NAMESURNAME];
     char surname[MAX_LENGTH_NAMESURNAME];
@@ -148,6 +167,7 @@ void richiediCarta(bst* bst_carte){
     //printf("\nNome e cognome: %s", node_to_insert.nomeCognome);
 
     bst_insert(bst_carte, bst_newNode(key, node_to_insert));
+    return key;
 }
 
 /**
@@ -200,4 +220,19 @@ bool rec_aggiorna(bst t, tipo_key numeroCarta, long int puntiAccumulati){
     else 
         return rec_aggiorna(t->right, numeroCarta, puntiAccumulati);
 
+}
+
+/**
+ * @brief rimuove una chiave all'interno dell'array che contiene altre chiavi
+ * 
+ * @param array 
+ * @param chiave 
+ */
+void delete_key(tipo_key* array, size_t dim, tipo_key chiave){
+    tipo_key default_value = 0; 
+    
+    for(int i=0; i<dim; i++){
+        if(array[i] == chiave)
+            array[i] = default_value;
+    }
 }
