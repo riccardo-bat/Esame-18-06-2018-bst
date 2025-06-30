@@ -71,4 +71,11 @@ void      bst_delete(bst *t, bnode *n);
  */
 int compare_key(tipo_key a, tipo_key b);
 
+/**
+ * @brief stampa il bst in ordine crescente di chiavi. Per farlo, utiizzo una vista inorder dell'albero
+ * 
+ * @param t 
+ */
+void stampa_bst_inorder(bst t);
+
 #endif /* BST_H */

@@ -102,3 +102,13 @@ void bst_print(bnode *n) {
     bst_print(n->left);
     bst_print(n->right);
 }
+
+void stampa_bst_inorder(bst t){
+    //visita in order
+    if(t != NULL){
+        stampa_bst_inorder(t->left);
+        printf("\n\tcarta numero %d associata a %s Totale punti: %li", 
+            t->key, t->inf.nomeCognome, t->inf.totPunti);
+        stampa_bst_inorder(t->right);
+    }
+}
